@@ -38,7 +38,7 @@ char byte, bytex, bytexx;
 int32_t byte4;
 uint32_t ubyte4;
 int tick = 0;
-void* memory=stk;
+void* memory = stk;
 int32_t reg_ea[9]{ 0 };
 void debug_reg() {
     cout << "Tick " << tick << '\n';
@@ -53,21 +53,19 @@ inline void execute_bytecode_unsafe(const char* file_name) {
         if (byte == INSTR_STORE32) {
             fread(&byte4, 4, 1, file);
             fread(&byte, 1, 1, file);
-                //                      ----VISUAL STUDIO-----
-            *static_cast<int*>((int32_t*)memory + byte4) = reg_ea[byte];
+            *((int32_t*)memory + byte4) = reg_ea[byte];
         }
         else if (byte == INSTR_LOAD32) {
             fread(&byte, 1, 1, file);
             fread(&byte4, 4, 1, file);
-                //                            ----VISUAL STUDIO-----
-            reg_ea[byte] = *static_cast<int*>((int32_t*)memory + byte4);
+            reg_ea[byte] = *((int32_t*)memory + byte4);
         }
         else if (byte == INSTR_MOV) {
             fread(&byte, 1, 1, file);
             fread(&bytex, 1, 1, file);
             reg_ea[byte] = reg_ea[bytex];
         }
-        else if (byte==INSTR_MOVQ) {
+        else if (byte == INSTR_MOVQ) {
             fread(&byte, 1, 1, file);
             fread(&byte4, 4, 1, file);
             reg_ea[byte] = byte4;
@@ -79,20 +77,17 @@ inline void execute_bytecode_unsafe(const char* file_name) {
         else if (byte == INSTR_SUB) {
             fread(&byte, 1, 1, file);
             fread(&bytex, 1, 1, file);
-            fread(&bytexx, 1, 1, file);
-            reg_ea[byte] = reg_ea[bytex] - reg_ea[bytexx];
+            reg_ea[byte] -= reg_ea[bytex];
         }
         else if (byte == INSTR_MUL) {
             fread(&byte, 1, 1, file);
             fread(&bytex, 1, 1, file);
-            fread(&bytexx, 1, 1, file);
-            reg_ea[byte] = reg_ea[bytex] * reg_ea[bytexx];
+            reg_ea[byte] *= reg_ea[bytex];
         }
         else if (byte == INSTR_ADD) {
             fread(&byte, 1, 1, file);
             fread(&bytex, 1, 1, file);
-            fread(&bytexx, 1, 1, file);
-            reg_ea[byte] = reg_ea[bytex] + reg_ea[bytexx];
+            reg_ea[byte] += reg_ea[bytex];
         }
         else if (byte == INSTR_JMP_IF) {
             fread(&byte, 1, 1, file);
@@ -115,19 +110,19 @@ inline void execute_bytecode_unsafe(const char* file_name) {
             fread(&byte4, 4, 1, file);
             fseek(file, byte4, SEEK_SET);
         }
-        else if (byte==INSTR_NEQ) {
+        else if (byte == INSTR_NEQ) {
             fread(&byte, 1, 1, file);
             fread(&bytex, 1, 1, file);
             fread(&bytexx, 1, 1, file);
             reg_ea[byte] = (reg_ea[bytex] != reg_ea[bytexx]);
         }
-        else if (byte==INSTR_EOF) return;
+        else if (byte == INSTR_EOF) { return; fclose(file); }
         else {
             cout << "Not implemented error! " << int(byte);
+            fclose(file);
             return;
         }
     }
-    fclose(file);
 }
 int main()
 {
