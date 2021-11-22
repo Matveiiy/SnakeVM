@@ -109,6 +109,12 @@ inline void execute_bytecode_unsafe(const char* file_name) {
             fread(&byte, 1, 1, file);
             fread(&bytex, 1, 1, file);
             fread(&bytexx, 1, 1, file);
+            reg_ea[byte] = (reg_ea[bytex] <= reg_ea[bytexx]);
+        }
+        else if (byte == INSTR_LE) {
+            fread(&byte, 1, 1, file);
+            fread(&bytex, 1, 1, file);
+            fread(&bytexx, 1, 1, file);
             reg_ea[byte] = (reg_ea[bytex] < reg_ea[bytexx]);
         }
         else if (byte == INSTR_JMP) {
@@ -120,6 +126,18 @@ inline void execute_bytecode_unsafe(const char* file_name) {
             fread(&bytex, 1, 1, file);
             fread(&bytexx, 1, 1, file);
             reg_ea[byte] = (reg_ea[bytex] != reg_ea[bytexx]);
+        }
+        else if (byte == INSTR_GRQ) {
+            fread(&byte, 1, 1, file);
+            fread(&bytex, 1, 1, file);
+            fread(&bytexx, 1, 1, file);
+            reg_ea[byte] = (reg_ea[bytex] >= reg_ea[bytexx]);
+        }
+        else if (byte == INSTR_GR) {
+            fread(&byte, 1, 1, file);
+            fread(&bytex, 1, 1, file);
+            fread(&bytexx, 1, 1, file);
+            reg_ea[byte] = (reg_ea[bytex] > reg_ea[bytexx]);
         }
         else if (byte==INSTR_EOF) return;
         else {
