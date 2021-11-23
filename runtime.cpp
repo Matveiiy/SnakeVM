@@ -21,6 +21,8 @@ enum INSTR_TYPE {
     INSTR_JMP,
     INSTR_LOAD32,
     INSTR_STORE32,
+    INSTR_MULQ,
+    INSTR_ADDQ,
 };
 enum REG {
     EA0 = 0,
@@ -41,6 +43,7 @@ int tick = 0;
 void* memory = stk;
 int32_t reg_ea[9]{ 0 };
 void debug_reg() {
+    ++tick;
     cout << "Tick " << tick << '\n';
     for (int i = 0; i < 8; i++) {
         cout << "Reg " << i << ":" << reg_ea[i] << '\n';
@@ -50,6 +53,7 @@ inline void execute_bytecode_unsafe(const char* file_name) {
     FILE* file = fopen(file_name, "rb");
     while (true) {
         fread(&byte, 1, 1, file);
+        cout << int(byte) << '\n';
         if (byte == INSTR_STORE32) {
             fread(&byte4, 4, 1, file);
             fread(&byte, 1, 1, file);
@@ -83,6 +87,16 @@ inline void execute_bytecode_unsafe(const char* file_name) {
             fread(&byte, 1, 1, file);
             fread(&bytex, 1, 1, file);
             reg_ea[byte] *= reg_ea[bytex];
+        }
+        else if (byte == INSTR_MULQ) {
+            fread(&byte, 1, 1, file);
+            fread(&byte4, 4, 1, file);
+            reg_ea[byte] *= byte4;
+        }
+        else if (byte == INSTR_ADDQ) {
+            fread(&byte, 1, 1, file);
+            fread(&byte4, 4, 1, file);
+            reg_ea[byte] += byte4;
         }
         else if (byte == INSTR_ADD) {
             fread(&byte, 1, 1, file);
@@ -122,10 +136,11 @@ inline void execute_bytecode_unsafe(const char* file_name) {
             fclose(file);
             return;
         }
+        debug_reg();
     }
 }
 int main()
 {
-    execute_bytecode_unsafe("out.sb");
+    execute_bytecode_unsafe("any.sb");
     return 0;
 }
